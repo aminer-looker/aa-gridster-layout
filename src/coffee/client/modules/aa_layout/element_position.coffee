@@ -7,8 +7,10 @@ angular = require 'angular'
 
 ############################################################################################################
 
-angular.module 'aa-layout', []
+angular.module('aa-layout').factory 'ElementPosition', class ElementPosition
 
-require './aa_layout_controller'
-require './aa_layout_directive'
-require './element_position'
+    init: ->
+        @x = 0
+        @y = 0
+        @width = 0
+        @height = 0

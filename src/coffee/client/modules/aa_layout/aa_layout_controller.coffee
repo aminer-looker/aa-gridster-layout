@@ -15,6 +15,7 @@ angular.module('aa-layout').controller 'AALayoutController', class AALayoutContr
 
         @_columns = 12
         @_rowHeight = 100 # px
+        @_elementCellPositions = []
 
     # Public Methods ###################################################################
 
@@ -43,4 +44,3 @@ angular.module('aa-layout').controller 'AALayoutController', class AALayoutContr
      # Private Methods #################################################################
 
      _recomputePostions: ->
-         # TODO: Figure out the proper top/left/width/height based upon grid postion
