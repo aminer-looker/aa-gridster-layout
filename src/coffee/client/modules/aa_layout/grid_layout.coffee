@@ -13,33 +13,47 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
     class GridLayout
 
         constructor: ($parentEl)->
-            @_columns = 12
-            @_ignoring = []
-            @_margin = 5
-            @_parentEl = $parentEl
+            @_columns   = 12
+            @_ignoring  = []
+            @_margin    = 5
+            @_parentEl  = $parentEl
+            @_reserved  = null
+            @_placeholder = $parentEl.find '.reserved'
             @_rowHeight = 100 # px
-            @_width = $parentEl.width()
+            @_width     = $parentEl.width()
 
             @_initializeElements @_findGridElements $parentEl
 
         # Public Methods ###############################################################
-
-        computeCellPosition: ($el)->
-            element =
-                $el:  $el
-                cell: new ElementPosition
-                px:   new ElementPosition
-
-            @_refreshPxFromDom element
-            @_refreshCellFromPx element
-
-            return element.cell
 
         layoutElements: ->
             for element in @_elements
                 continue if element in @_ignoring
                 @_refreshPxFromCell element
                 @_refreshDomFromPx element
+
+        reserveSpace: ($el)->
+            @_reserved =
+                $el:  $el
+                cell: new ElementPosition
+                px:   new ElementPosition
+
+            @_refreshPxFromDom @_reserved
+            @_refreshCellFromPx @_reserved
+            @_refreshPxFromCell @_reserved
+
+            offset =
+                x: @_parentEl.offset().left + @_margin
+                y: @_parentEl.offset().top + @_margin
+
+            @_placeholder.offset top:@_reserved.px.y + offset.y, left:@_reserved.px.x + offset.x
+            @_placeholder.width @_reserved.px.width
+            @_placeholder.height @_reserved.px.height
+            @_placeholder.addClass 'visible'
+
+        clearReservedSpace: ->
+            @_placeholder.removeClass 'visible'
+            @_reserved = null
 
         startIgnoring: ($el)->
             for element in @_elements
@@ -127,9 +141,13 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
             element.cell.height = element.$el.attr 'data-height'
 
         _refreshCellFromPx: (element)->
-            xScale = (@_width - 2 * @_margin) / @_columns
+            xScale = ((@_width - @_margin) / @_columns)
             yScale = @_rowHeight
 
+            element.cell.x = Math.round element.px.x / xScale
+            element.cell.y = Math.round element.px.y / yScale
+            element.cell.width = Math.round element.px.width / (xScale - @_margin)
+            element.cell.height = Math.round element.px.height / (yScale - @_margin)
 
         _refreshDomFromPx: (element)->
             offset =
