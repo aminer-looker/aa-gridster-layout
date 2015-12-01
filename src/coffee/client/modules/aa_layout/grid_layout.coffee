@@ -15,6 +15,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
         constructor: ($parentEl)->
             @_columns = 12
             @_rowHeight = 100 # px
+            @_margin = 5
             @_width = $parentEl.width()
             @_$parentEl = $parentEl
 
@@ -54,17 +55,29 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
                     else
                         throw new Error "expected a string or integer"
 
+            margin:
+                get: -> return @_margin
+                set: (value)->
+                    value ?= 0
+
+                    if _.isString value
+                        @_margin = parseInt(value)
+                    else if _.isNumber value
+                        @_margin = value
+                    else
+                        throw new Error "expected a string or integer"
+
         # Private Methods #############################################################
 
         _convertCellToPx: (position)->
-            xScale = @_width / @_columns
+            xScale = (@_width - 2 * @_margin) / @_columns
             yScale = @_rowHeight
 
             result        = new ElementPosition
-            result.x      = position.x * xScale
-            result.y      = position.y * yScale
-            result.width  = position.width * xScale
-            result.height = position.height * yScale
+            result.x      = position.x * xScale + @_margin
+            result.y      = position.y * yScale + @_margin
+            result.width  = position.width * xScale - 2 * @_margin
+            result.height = position.height * yScale - 2 * @_margin
 
             return result
 
@@ -99,8 +112,8 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
             return unless @_elements.length > 0
 
             offset =
-                x: @_$parentEl.offset().left
-                y: @_$parentEl.offset().top
+                x: @_$parentEl.offset().left + @_margin
+                y: @_$parentEl.offset().top + @_margin
 
             for element in @_elements
                 element.$el.offset left:element.px.x + offset.x, top:element.px.y + offset.y
