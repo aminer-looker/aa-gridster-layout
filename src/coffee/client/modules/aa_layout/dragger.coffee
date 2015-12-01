@@ -27,6 +27,7 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
                     $el.mousedown (event)=> @_onMouseDown $el, event
                     $el.mousemove (event)=> @_onMouseMove $el, event
                     $el.mouseup   (event)=> @_onMouseUp   $el, event
+                    $el.mouseout  (event)=> @_onMouseUp   $el, event
 
         _onMouseDown: ($el, event)->
             @_isDragging = true
@@ -65,3 +66,5 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             @_layout.stopIgnoring $el
             @_layout.clearReservedSpace()
             @_layout.layoutElements()
+
+
