@@ -9,7 +9,7 @@ angular = require 'angular'
 
 angular.module('aa-layout').factory 'ElementPosition', class ElementPosition
 
-    init: ->
+    constructor: ->
         @x = 0
         @y = 0
         @width = 0

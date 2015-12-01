@@ -10,16 +10,22 @@ angular = require 'angular'
 
 angular.module('aa-layout').controller 'AALayoutController', class AALayoutController
 
-    init: ->
+    constructor: ->
         layoutElements = (positionList)-> # do nothing
 
-        @_columns = 12
+        @_columns   = 12
         @_rowHeight = 100 # px
+        @_width     = 1000
+        @_height    = 1000
 
         @_elementCellPositions = []
-        @_elementPxPositions = []
+        @_elementPxPositions   = []
 
     # Public Methods ###################################################################
+
+    updateElements: (elementCellPositions)->
+        @_elementCellPositions = elementCellPositions
+        @refresh()
 
     refresh: ->
         @_recomputePostions()
@@ -28,6 +34,10 @@ angular.module('aa-layout').controller 'AALayoutController', class AALayoutContr
     # Property Methods #################################################################
 
     Object.defineProperties @prototype,
+
+        height:
+            get: -> return @_height
+            set: (value)-> @_height = value
 
         width:
             get: -> return @_width
@@ -59,7 +69,18 @@ angular.module('aa-layout').controller 'AALayoutController', class AALayoutContr
 
      # Private Methods #################################################################
 
-     _recomputePostions: ->
-         @_elementPxPositions = []
+    _recomputePostions: ->
+        return unless @_elementCellPositions.length > 0
 
-         # for position in @_elementCellPositions
+        xScale = @_width / @_columns
+        yScale = @_rowHeight
+
+        @_elementPxPositions = []
+        for position in @_elementCellPositions
+            px = new ElementPosition
+            @_elementPxPositions.push px
+
+            px.x      = position.x * xScale
+            px.y      = position.y * yScale
+            px.width  = position.width * xScale
+            px.height = position.height * yScale
