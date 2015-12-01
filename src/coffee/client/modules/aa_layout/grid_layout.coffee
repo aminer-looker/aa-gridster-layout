@@ -8,7 +8,7 @@ angular = require 'angular'
 
 ############################################################################################################
 
-angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
+angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)->
 
     class GridLayout
 
@@ -29,8 +29,20 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
         layoutElements: ->
             for element in @_elements
                 continue if element in @_ignoring
+
+                element.pushed = null
                 @_refreshPxFromCell element
                 @_refreshDomFromPx element
+
+        claimReservedSpace: ($el)->
+            @_placeholder.removeClass 'visible'
+
+            for element in @_elements
+                if element.$el is $el
+                    element.cell = @_reserved.cell
+                    break
+
+            @_reserved = null
 
         reserveSpace: ($el)->
             @_reserved =
@@ -51,9 +63,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
             @_placeholder.height @_reserved.px.height
             @_placeholder.addClass 'visible'
 
-        clearReservedSpace: ->
-            @_placeholder.removeClass 'visible'
-            @_reserved = null
+            @_pushElementsFromReservedSpace()
 
         startIgnoring: ($el)->
             for element in @_elements
@@ -117,22 +127,69 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
 
         # Private Methods #############################################################
 
+        _attemptPush: (element, toAvoid, onSide)->
+            attempt = new PushAttempt element, element.cell.nextTo toAvoid, onSide
+
+            if attempt.to.x     < 0         then return attempt.fail()
+            if attempt.to.maxX >= @_columns then return attempt.fail()
+            if attempt.to.y     < 0         then return attempt.fail()
+
+            overlappingElements = @_findOverlappingElements attempt.to
+            for child in overlappingElements
+                childAttempt = @_attemptPush child, attempt.to, onSide
+                if childAttempt.successful
+                    attempt.children.push childAttempt
+                else
+                    return attempt.fail()
+
         _findGridElements: ($parentEl)->
             results = []
             for childEl in $parentEl.find('.grid').children()
                 results.push $(childEl)
             return results
 
+        _findOverlappingElements: (position)->
+            result = []
+            for currentElement in @_elements
+                continue if currentElement is element
+                if position.overlaps currentElement.cell
+                    result.push currentElement
+
+            return result
+
         _initializeElements: ($elements)->
             @_elements = []
             for $element in $elements
                 element =
-                    $el: $element
-                    cell: new ElementPosition
+                    $el:        $element
+                    cell:       new ElementPosition
                     isDragging: false
-                    px: new ElementPosition
+                    px:         new ElementPosition
+                    pushed:     null
+
                 @_elements.push element
                 @_refreshCellFromDom element
+
+        _doesOverlapReserved: (position)->
+            return false unless @_reserved
+            return false unless position
+            return position.overlaps @_reserved.cell
+
+        _pushElementsFromReservedSpace: ->
+            for element in @_elements
+                continue unless @_doesOverlapReserved element.cell
+
+                attempt = @_attemptPush element, @_reserved.cell, 'up'
+
+                if not attempt.successful
+                    attempt = @_attemptPush element, @_reserved.cell, 'left'
+                if not attempt.successful
+                    attempt = @_attemptPush element, @_reserved.cell, 'right'
+                if not attempt.successful
+                    attempt = @_attemptPush element, @_reserved.cell, 'down'
+
+                if attempt.successful
+                    attempt.commit()
 
         _refreshCellFromDom: (element)->
             element.cell.x      = element.$el.attr 'data-x'
@@ -161,6 +218,8 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
         _refreshPxFromCell: (element)->
             xScale = ((@_width - @_margin) / @_columns)
             yScale = @_rowHeight
+
+            cell = element.pushed or element.cell
 
             element.px.x      = element.cell.x * xScale
             element.px.y      = element.cell.y * yScale

@@ -48,7 +48,6 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             event.preventDefault()
 
             $el.offset top:event.pageY - @_dragStartOffset.y, left:event.pageX - @_dragStartOffset.x
-            @_layout.layoutElements()
             @_layout.reserveSpace $el
 
         _onMouseUp: ($el, event)->
@@ -63,8 +62,8 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             @_dragStartOffset = null
             @_draggedElement  = null
 
+            @_layout.claimReservedSpace $el
             @_layout.stopIgnoring $el
-            @_layout.clearReservedSpace()
             @_layout.layoutElements()
 
 
