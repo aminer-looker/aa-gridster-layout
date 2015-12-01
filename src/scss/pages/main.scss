@@ -5,7 +5,13 @@
 
 // import any SCSS files added to the /scss/pages directory below
 
-img {
-    height: 100%;
-    max-width: 100%;
+.grid-element {
+    background: white;
+    border: 1px solid #efefef;
+    text-align: center;
+
+    img {
+        height: 100%;
+        max-width: 100%;
+    }
 }

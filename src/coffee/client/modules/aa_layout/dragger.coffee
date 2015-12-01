@@ -7,7 +7,7 @@ angular = require 'angular'
 
 ############################################################################################################
 
-angular.module('aa-layout').factory 'Dragger', ->
+angular.module('aa-layout').factory 'Dragger', ($timeout)->
 
     class Dragger
 
@@ -49,7 +49,9 @@ angular.module('aa-layout').factory 'Dragger', ->
             return unless $el is @_draggedElement
             event.preventDefault()
 
-            @_draggedElement.removeClass 'dragging'
+            $el.removeClass 'dragging'
+            $el.addClass 'drag-ending'
+            $timeout (=> $el.removeClass 'drag-ending'), 300
 
             @_isDragging      = false
             @_dragStartOffset = null
