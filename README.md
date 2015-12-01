@@ -1,18 +1,8 @@
-This is a template for a generic Node/Angular client/server project.  If you would like to create a project starting from this template, do the following:
+This is a hack-day project to build a more robust gridster layout. In addition to avoiding some of the odd bugs present in AngularGridster, it is intended to support a number of new, interesting features:
 
-    git clone git@github.com:aminer-looker/starter-project <your project name>
-    cd <your project name>
-    rm -rf .git
-    git init
-    git add -A
-    git commit -m "initial commit"
-
-Now you'll have a brand new project which has its own separate repository, and is ready to be connected to a new GitHub repo (if you so choose).  In that case, go ahead and create your repository, and then run the following command:
-
-    git remote add origin git@github.com:<your GitHub username>/<your new repo name>.git
-    git push -u origin master
-
-Now, your new repository will contain the contents of your started project, and you're ready to start working!
+  * elements should "snap back" to their original positions during a drag event once the dragged element has passed
+  * the whole grid should shrink to make it easy to drag an item from one extreme position to another
+  * items should be able to be placed in a "shelf" to allow easier re-arranging
 
 ### How to use things...
 
