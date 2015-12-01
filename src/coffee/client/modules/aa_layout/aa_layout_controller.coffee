@@ -22,7 +22,7 @@ angular.module('aa-layout').controller 'AALayoutController', class AALayoutContr
     # Public Methods ###################################################################
 
     refresh: ->
-        @_recomputePositions()
+        @_recomputePostions()
         @layoutElements @_elementPxPositions
 
     # Property Methods #################################################################
@@ -36,16 +36,26 @@ angular.module('aa-layout').controller 'AALayoutController', class AALayoutContr
         columns:
             get: -> return @_columns
             set: (value)->
-                if _.isString value then @_columns = parseInt(value)
-                else if _.isNumber value then @_columns = value
-                else throw new Error "expected a string or integer"
+                value ?= 0
+
+                if _.isString value
+                    @_columns = parseInt(value)
+                else if _.isNumber value
+                    @_columns = value
+                else
+                    throw new Error "expected a string or integer"
 
         rowHeight:
             get: -> return @_rowHeight
             set: (value)->
-                if _.isString value then @_rowHeight = parseInt(value)
-                else if _.isNumber value then @_rowHeight = value
-                else throw new Error "expected a string or integer"
+                value ?= 0
+
+                if _.isString value
+                    @_rowHeight = parseInt(value)
+                else if _.isNumber value
+                    @_rowHeight = value
+                else
+                    throw new Error "expected a string or integer"
 
      # Private Methods #################################################################
 
