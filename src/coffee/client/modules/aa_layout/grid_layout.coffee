@@ -24,6 +24,17 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
 
         # Public Methods ###############################################################
 
+        computeCellPosition: ($el)->
+            element =
+                $el:  $el
+                cell: new ElementPosition
+                px:   new ElementPosition
+
+            @_refreshPxFromDom element
+            @_refreshCellFromPx element
+
+            return element.cell
+
         layoutElements: ->
             for element in @_elements
                 continue if element in @_ignoring
@@ -107,20 +118,18 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
                     isDragging: false
                     px: new ElementPosition
                 @_elements.push element
+                @_refreshCellFromDom element
 
-                element.cell.x      = $element.attr 'data-x'
-                element.cell.y      = $element.attr 'data-y'
-                element.cell.width  = $element.attr 'data-width'
-                element.cell.height = $element.attr 'data-height'
+        _refreshCellFromDom: (element)->
+            element.cell.x      = element.$el.attr 'data-x'
+            element.cell.y      = element.$el.attr 'data-y'
+            element.cell.width  = element.$el.attr 'data-width'
+            element.cell.height = element.$el.attr 'data-height'
 
-        _refreshPxFromCell: (element)->
+        _refreshCellFromPx: (element)->
             xScale = (@_width - 2 * @_margin) / @_columns
             yScale = @_rowHeight
 
-            element.px.x      = element.cell.x * xScale + @_margin
-            element.px.y      = element.cell.y * yScale + @_margin
-            element.px.width  = element.cell.width * xScale - 2 * @_margin
-            element.px.height = element.cell.height * yScale - 2 * @_margin
 
         _refreshDomFromPx: (element)->
             offset =
@@ -130,6 +139,15 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
             element.$el.offset left:element.px.x + offset.x, top:element.px.y + offset.y
             element.$el.height element.px.height
             element.$el.width element.px.width
+
+        _refreshPxFromCell: (element)->
+            xScale = ((@_width - @_margin) / @_columns)
+            yScale = @_rowHeight
+
+            element.px.x      = element.cell.x * xScale
+            element.px.y      = element.cell.y * yScale
+            element.px.width  = element.cell.width * (xScale - @_margin)
+            element.px.height = element.cell.height * (yScale - @_margin)
 
         _refreshPxFromDom: (element)->
             elementOffset     = element.$el.offset()

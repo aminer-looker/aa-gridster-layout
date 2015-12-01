@@ -5,14 +5,17 @@
 
 // import any SCSS files added to the /scss/pages directory below
 
-.grid-element {
-    background: white;
-    border: 1px solid #efefef;
-    overflow: hidden;
-    text-align: center;
+aa-layout {
+    background: orange;
 
-    img {
-        width: 100%;
-        height: auto;
+    .grid-element {
+        background: white;
+        overflow: hidden;
+        text-align: center;
+
+        img {
+            width: 100%;
+            height: auto;
+        }
     }
 }
