@@ -11,4 +11,6 @@ angular.module 'aa-layout', []
 
 require './aa_layout_controller'
 require './aa_layout_directive'
+require './dragger'
 require './element_position'
+require './grid_layout'

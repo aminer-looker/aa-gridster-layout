@@ -7,6 +7,7 @@ angular = require 'angular'
 
 ############################################################################################################
 
-angular.module('aa-layout').factory 'ElementPosition', class ElementPosition
+angular.module('aa-layout').factory 'ElementPosition', ->
 
-    constructor(@x=0, @y=0, @width=0, @height=0): -> # do nothing
+    class ElementPosition
+        constructor: (@x=0, @y=0, @width=0, @height=0)-> # do nothing

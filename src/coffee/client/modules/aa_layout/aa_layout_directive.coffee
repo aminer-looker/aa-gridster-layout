@@ -8,19 +8,15 @@ templates = require '../../templates'
 
 ############################################################################################################
 
-initializeElements = ($parentEl)->
-  # TODO: read existing DOM elements and get the x, y, height, width off of them
-
-layoutElements = ($parentEl, positionList)->
-  # TODO: set the CSS positioning & size of each of these to the correct X/Y coordinates
-
-angular.module('aa-layout').directive 'aaLayout', ->
-  bindToController: true
+angular.module('aa-layout').directive 'aaLayout', (GridLayout)->
   controller: 'AALayoutController'
   controllerAs: 'layoutController'
   link: (scope, $el, attrs, controller)->
-    controller.layoutElements = (positionList)-> layoutElements($el, positionList)
-    controller.refresh()
+      layout = new GridLayout $el
+      layout.columns = scope.columns
+      layout.rowHeight = scope.rowHeight
+      layout.layoutElements()
+
   restrict: 'E'
   scope: {
     columns: '@'
