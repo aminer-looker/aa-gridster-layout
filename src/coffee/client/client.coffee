@@ -12,11 +12,11 @@ if typeof(global) is 'undefined'
     window.global = window
 
 # Add 'require' statements for your other Angular module files here.
-require './modules/sample_module'
+require './modules/aa_layout/aa_layout_module'
 
 # Add all your modules here.
 MODULES = [
-    'sample'
+    'aa-layout'
 ]
 
 angular.module 'app', MODULES
