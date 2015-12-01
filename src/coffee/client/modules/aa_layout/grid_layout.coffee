@@ -146,8 +146,8 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
 
             element.px.x      = element.cell.x * xScale
             element.px.y      = element.cell.y * yScale
-            element.px.width  = element.cell.width * (xScale - @_margin)
-            element.px.height = element.cell.height * (yScale - @_margin)
+            element.px.width  = element.cell.width * xScale - @_margin
+            element.px.height = element.cell.height * yScale - @_margin
 
         _refreshPxFromDom: (element)->
             elementOffset     = element.$el.offset()

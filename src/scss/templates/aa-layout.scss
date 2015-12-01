@@ -2,11 +2,9 @@
  * Copyright (C) 2015 by Looker Data Services, Inc.
  * All rights reserved.
  */
-
 aa-layout {
-    position: relative; width: 100%; height: 1000px;
+    position: relative; width: 100%; height: 900px;
     display: block;
-
     .grid {
         position: absolute; height: 100%; width: 100%;
         .grid-element {
