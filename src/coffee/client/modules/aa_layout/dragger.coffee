@@ -7,25 +7,52 @@ angular = require 'angular'
 
 ############################################################################################################
 
-angular.module('aa-layout').factory 'Dragger', class Dragger
+angular.module('aa-layout').factory 'Dragger', ->
 
-    constructor: ($draggableEls)->
-        @_addMouseHandlers $draggableEls
+    class Dragger
 
-        @_isDragging = false
-        @_dragStartOffset = {top:0, left:0}
+        constructor: (layout)->
+            @_isDragging      = false
+            @_dragStartOffset = {x:0, y:0}
+            @_draggedElement  = null
+            @_layout          = layout
 
-    # Private Methods ##################################################################
+            @_addMouseHandlers (element.$el for element in layout.elements)
 
-    _addMouseHandlers: ->
-        for $el in $draggableEls
-            do ($el)->
-                $el.mouseDown (event)=> @_onMouseDown $el, event
-                $el.mouseMove (event)=> @_onMouseMove $el, event
-                $el.mouseUp   (event)=> @_onMouseUp   $el, event
+        # Private Methods ##############################################################
 
-    _onMouseDown: ($el, event)->
+        _addMouseHandlers: ($draggableEls)->
+            for $el in $draggableEls
+                do ($el)=>
+                    $el.mousedown (event)=> @_onMouseDown $el, event
+                    $el.mousemove (event)=> @_onMouseMove $el, event
+                    $el.mouseup   (event)=> @_onMouseUp   $el, event
 
-    _onMouseMove: ($el, event)->
+        _onMouseDown: ($el, event)->
+            @_isDragging = true
+            event.preventDefault()
 
-    _onMouseUp: ($el, event)->
+            @_dragStartOffset =
+                x: event.pageX - $el.offset().left
+                y: event.pageY - $el.offset().top
+
+            @_draggedElement = $el
+            @_draggedElement.addClass 'dragging'
+
+        _onMouseMove: ($el, event)->
+            return unless $el is @_draggedElement
+            event.preventDefault()
+
+            $el.offset top:event.pageY - @_dragStartOffset.y, left:event.pageX - @_dragStartOffset.x
+
+        _onMouseUp: ($el, event)->
+            return unless $el is @_draggedElement
+            event.preventDefault()
+
+            @_draggedElement.removeClass 'dragging'
+
+            @_isDragging      = false
+            @_dragStartOffset = null
+            @_draggedElement  = null
+
+            @_layout.layoutElements()

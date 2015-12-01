@@ -13,6 +13,9 @@ aa-layout {
         .grid-element {
             position: absolute;
             border: 1px solid black;
+            &.dragging {
+                z-index: 100;
+            }
         }
     }
 }

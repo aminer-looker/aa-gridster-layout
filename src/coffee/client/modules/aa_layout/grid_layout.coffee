@@ -43,6 +43,14 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
                     else
                         throw new Error "expected a string or integer"
 
+            elements:
+                get: ->
+                    return @_elements[..]
+
+            parentEl:
+                get: ->
+                    return @_$parentEl
+
             rowHeight:
                 get: -> return @_rowHeight
                 set: (value)->
