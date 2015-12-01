@@ -14,18 +14,33 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
 
         constructor: ($parentEl)->
             @_columns = 12
-            @_rowHeight = 100 # px
+            @_ignoring = []
             @_margin = 5
+            @_parentEl = $parentEl
+            @_rowHeight = 100 # px
             @_width = $parentEl.width()
-            @_$parentEl = $parentEl
 
             @_initializeElements @_findGridElements $parentEl
 
         # Public Methods ###############################################################
 
         layoutElements: ->
-            @_refreshPxFromCellPositions()
-            @_refreshDomFromPxPositions()
+            for element in @_elements
+                continue if element in @_ignoring
+                @_refreshPxFromCell element
+                @_refreshDomFromPx element
+
+        startIgnoring: ($el)->
+            for element in @_elements
+                if element.$el is $el
+                    @_ignoring.push element
+                    break
+
+        stopIgnoring: ($el)->
+            for element, index in @_ignoring
+                if element.$el is $el
+                    @_ignoring.splice index, 1
+                    break
 
         # Property Methods #############################################################
 
@@ -49,7 +64,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
 
             parentEl:
                 get: ->
-                    return @_$parentEl
+                    return @_parentEl
 
             rowHeight:
                 get: -> return @_rowHeight
@@ -77,18 +92,6 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
 
         # Private Methods #############################################################
 
-        _convertCellToPx: (position)->
-            xScale = (@_width - 2 * @_margin) / @_columns
-            yScale = @_rowHeight
-
-            result        = new ElementPosition
-            result.x      = position.x * xScale + @_margin
-            result.y      = position.y * yScale + @_margin
-            result.width  = position.width * xScale - 2 * @_margin
-            result.height = position.height * yScale - 2 * @_margin
-
-            return result
-
         _findGridElements: ($parentEl)->
             results = []
             for childEl in $parentEl.find('.grid').children()
@@ -110,25 +113,25 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition)->
                 element.cell.width  = $element.attr 'data-width'
                 element.cell.height = $element.attr 'data-height'
 
-        _refreshPxFromCellPositions: ->
-            return unless @_elements.length > 0
+        _refreshPxFromCell: (element)->
+            xScale = (@_width - 2 * @_margin) / @_columns
+            yScale = @_rowHeight
 
-            for element in @_elements
-                element.px = @_convertCellToPx element.cell
+            element.px.x      = element.cell.x * xScale + @_margin
+            element.px.y      = element.cell.y * yScale + @_margin
+            element.px.width  = element.cell.width * xScale - 2 * @_margin
+            element.px.height = element.cell.height * yScale - 2 * @_margin
 
-        _refreshDomFromPxPositions: ->
-            return unless @_elements.length > 0
-
+        _refreshDomFromPx: (element)->
             offset =
-                x: @_$parentEl.offset().left + @_margin
-                y: @_$parentEl.offset().top + @_margin
+                x: @_parentEl.offset().left + @_margin
+                y: @_parentEl.offset().top + @_margin
 
-            for element in @_elements
-                element.$el.offset left:element.px.x + offset.x, top:element.px.y + offset.y
-                element.$el.height element.px.height
-                element.$el.width element.px.width
+            element.$el.offset left:element.px.x + offset.x, top:element.px.y + offset.y
+            element.$el.height element.px.height
+            element.$el.width element.px.width
 
-        _refreshPxPositionFromDom: (element)->
+        _refreshPxFromDom: (element)->
             elementOffset     = element.$el.offset()
             element.px.x      = elementOffset.left
             element.px.y      = elementOffset.top
