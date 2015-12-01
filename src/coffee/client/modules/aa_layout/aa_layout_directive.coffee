@@ -8,7 +8,7 @@ templates = require '../../templates'
 
 ############################################################################################################
 
-angular.module('aa-layout').directive 'aaLayout', (GridLayout)->
+angular.module('aa-layout').directive 'aaLayout', (Dragger, GridLayout)->
   controller: 'AALayoutController'
   controllerAs: 'layoutController'
   link: (scope, $el, attrs, controller)->
@@ -16,6 +16,8 @@ angular.module('aa-layout').directive 'aaLayout', (GridLayout)->
       layout.columns = scope.columns
       layout.rowHeight = scope.rowHeight
       layout.layoutElements()
+
+      dragger = new Dragger layout
 
   restrict: 'E'
   scope: {

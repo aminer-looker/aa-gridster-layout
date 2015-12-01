@@ -12,6 +12,10 @@ aa-layout {
 
         .grid-element {
             position: absolute;
+
+            &.dragging {
+                z-index: 100;
+            }
         }
     }
 }
