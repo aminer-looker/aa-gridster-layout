@@ -65,5 +65,3 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             @_layout.claimReservedSpace $el
             @_layout.stopIgnoring $el
             @_layout.layoutElements()
-
-

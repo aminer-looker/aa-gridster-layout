@@ -13,14 +13,14 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
     class GridLayout
 
         constructor: ($parentEl)->
-            @_columns   = 12
-            @_ignoring  = []
-            @_margin    = 5
-            @_parentEl  = $parentEl
-            @_reserved  = null
+            @_columns     = 12
+            @_ignoring    = []
+            @_margin      = 5
+            @_parentEl    = $parentEl
+            @_reserved    = null
             @_placeholder = $parentEl.find '.reserved'
-            @_rowHeight = 100 # px
-            @_width     = $parentEl.width()
+            @_rowHeight   = 100 # px
+            @_width       = $parentEl.width()
 
             @_initializeElements @_findGridElements $parentEl
 
@@ -30,7 +30,6 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             for element in @_elements
                 continue if element in @_ignoring
 
-                element.pushed = null
                 @_refreshPxFromCell element
                 @_refreshDomFromPx element
 
@@ -40,7 +39,9 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             for element in @_elements
                 if element.$el is $el
                     element.cell = @_reserved.cell
-                    break
+                else if element.pushed?
+                    element.cell = element.pushed
+                    element.pushed = null
 
             @_reserved = null
 
@@ -63,7 +64,8 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             @_placeholder.height @_reserved.px.height
             @_placeholder.addClass 'visible'
 
-            @_pushElementsFromReservedSpace()
+            # @_pushElementsFromReservedSpace()
+            # @layoutElements()
 
         startIgnoring: ($el)->
             for element in @_elements
@@ -128,13 +130,14 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
         # Private Methods #############################################################
 
         _attemptPush: (element, toAvoid, onSide)->
-            attempt = new PushAttempt element, element.cell.nextTo toAvoid, onSide
+            elementPosition = element.pushed or element.cell
+            attempt = new PushAttempt element, elementPosition.nextTo(toAvoid, onSide)
 
             if attempt.to.x     < 0         then return attempt.fail()
             if attempt.to.maxX >= @_columns then return attempt.fail()
             if attempt.to.y     < 0         then return attempt.fail()
 
-            overlappingElements = @_findOverlappingElements attempt.to
+            overlappingElements = @_findOverlappingElements attempt.to, element
             for child in overlappingElements
                 childAttempt = @_attemptPush child, attempt.to, onSide
                 if childAttempt.successful
@@ -142,18 +145,23 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                 else
                     return attempt.fail()
 
+            return attempt
+
         _findGridElements: ($parentEl)->
             results = []
             for childEl in $parentEl.find('.grid').children()
                 results.push $(childEl)
             return results
 
-        _findOverlappingElements: (position)->
+        _findOverlappingElements: (position, except=null)->
             result = []
-            for currentElement in @_elements
-                continue if currentElement is element
-                if position.overlaps currentElement.cell
-                    result.push currentElement
+            for element in @_elements
+                continue if element is except
+                continue if element in @_ignoring
+
+                elementPosition = element.pushed or element.cell
+                if position.overlaps elementPosition
+                    result.push element
 
             return result
 
@@ -177,16 +185,16 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
 
         _pushElementsFromReservedSpace: ->
             for element in @_elements
-                continue unless @_doesOverlapReserved element.cell
+                elementPosition = element.pushed or element.cell
+                continue unless @_doesOverlapReserved elementPosition
 
-                attempt = @_attemptPush element, @_reserved.cell, 'up'
-
+                attempt = @_attemptPush element, @_reserved.cell, 'top'
                 if not attempt.successful
                     attempt = @_attemptPush element, @_reserved.cell, 'left'
                 if not attempt.successful
                     attempt = @_attemptPush element, @_reserved.cell, 'right'
                 if not attempt.successful
-                    attempt = @_attemptPush element, @_reserved.cell, 'down'
+                    attempt = @_attemptPush element, @_reserved.cell, 'bottom'
 
                 if attempt.successful
                     attempt.commit()
@@ -221,10 +229,10 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
 
             cell = element.pushed or element.cell
 
-            element.px.x      = element.cell.x * xScale
-            element.px.y      = element.cell.y * yScale
-            element.px.width  = element.cell.width * xScale - @_margin
-            element.px.height = element.cell.height * yScale - @_margin
+            element.px.x      = cell.x * xScale
+            element.px.y      = cell.y * yScale
+            element.px.width  = cell.width * xScale - @_margin
+            element.px.height = cell.height * yScale - @_margin
 
         _refreshPxFromDom: (element)->
             elementOffset     = element.$el.offset()

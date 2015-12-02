@@ -24,7 +24,7 @@ angular.module('aa-layout').factory 'ElementPosition', ->
             if side is 'bottom'
                 result = @clone()
                 result.y = position.y + position.height
-            if side is 'left'
+            else if side is 'left'
                 result = @clone()
                 result.x = position.x - @width
             else if side is 'right'
@@ -34,17 +34,17 @@ angular.module('aa-layout').factory 'ElementPosition', ->
                 result = @clone()
                 result.y = position.y - @height
             else
-                throw new Error "Invalid direction: #{inDirection}"
+                throw new Error "Invalid side: #{side}"
 
             return result
 
         overlaps: (that)->
             maxStartX = Math.max this.x, that.x
             maxStartY = Math.max this.y, that.y
-            minEndX   = Math.min this.x + this.width, that.x + that.width
-            minEndY   = Math.min this.y + this.height, that.y + that.height
+            minEndX   = Math.min this.maxX, that.maxX
+            minEndY   = Math.min this.maxY, that.maxY
 
-            return (maxStartX > minEndX) and (maxStartY > minEndY)
+            return (maxStartX >= minEndX) and (maxStartY >= minEndY)
 
         # Property Methods #############################################################
 
