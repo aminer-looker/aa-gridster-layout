@@ -44,7 +44,7 @@ angular.module('aa-layout').factory 'ElementPosition', ->
             minEndX   = Math.min this.maxX, that.maxX
             minEndY   = Math.min this.maxY, that.maxY
 
-            return (maxStartX >= minEndX) and (maxStartY >= minEndY)
+            return (maxStartX < minEndX) and (maxStartY < minEndY)
 
         # Property Methods #############################################################
 
@@ -54,3 +54,8 @@ angular.module('aa-layout').factory 'ElementPosition', ->
 
             maxY:
                 get: -> @y + @height
+
+        # Object Overrides #############################################################
+
+        toString: ->
+            return "{x:#{@x}, y:#{@y}, width:#{@width}, height:#{@height}}"

@@ -64,8 +64,9 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             @_placeholder.height @_reserved.px.height
             @_placeholder.addClass 'visible'
 
-            # @_pushElementsFromReservedSpace()
-            # @layoutElements()
+            @_resetPushedPositions()
+            @_pushElementsFromReservedSpace()
+            @layoutElements()
 
         startIgnoring: ($el)->
             for element in @_elements
@@ -147,6 +148,10 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
 
             return attempt
 
+        _resetPushedPositions: ->
+            for element in @_elements
+                element.pushed = null
+
         _findGridElements: ($parentEl)->
             results = []
             for childEl in $parentEl.find('.grid').children()
@@ -169,11 +174,15 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             @_elements = []
             for $element in $elements
                 element =
+                    id:         _.uniqueId 'grid-'
                     $el:        $element
                     cell:       new ElementPosition
                     isDragging: false
                     px:         new ElementPosition
                     pushed:     null
+                    toString:   -> @id
+
+                # $element.append "<p>id: #{element.id}, #{element.cell}</p>"
 
                 @_elements.push element
                 @_refreshCellFromDom element
@@ -187,6 +196,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             for element in @_elements
                 elementPosition = element.pushed or element.cell
                 continue unless @_doesOverlapReserved elementPosition
+                continue if element in @_ignoring
 
                 attempt = @_attemptPush element, @_reserved.cell, 'top'
                 if not attempt.successful
@@ -200,19 +210,24 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                     attempt.commit()
 
         _refreshCellFromDom: (element)->
-            element.cell.x      = element.$el.attr 'data-x'
-            element.cell.y      = element.$el.attr 'data-y'
-            element.cell.width  = element.$el.attr 'data-width'
-            element.cell.height = element.$el.attr 'data-height'
+            element.cell.x      = parseInt element.$el.attr 'data-x'
+            element.cell.y      = parseInt element.$el.attr 'data-y'
+            element.cell.width  = parseInt element.$el.attr 'data-width'
+            element.cell.height = parseInt element.$el.attr 'data-height'
+
+            # element.$el.find('p').html "id: #{element.id}, #{element.cell}"
+
 
         _refreshCellFromPx: (element)->
             xScale = ((@_width - @_margin) / @_columns)
             yScale = @_rowHeight
 
-            element.cell.x = Math.round element.px.x / xScale
-            element.cell.y = Math.round element.px.y / yScale
-            element.cell.width = Math.round element.px.width / (xScale - @_margin)
+            element.cell.x      = Math.round element.px.x / xScale
+            element.cell.y      = Math.round element.px.y / yScale
+            element.cell.width  = Math.round element.px.width / (xScale - @_margin)
             element.cell.height = Math.round element.px.height / (yScale - @_margin)
+
+            # element.$el.find('p').html "id: #{element.id}, #{element.cell}"
 
         _refreshDomFromPx: (element)->
             offset =
