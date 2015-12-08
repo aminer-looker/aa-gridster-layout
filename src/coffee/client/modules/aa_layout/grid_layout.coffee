@@ -134,9 +134,9 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             elementPosition = element.pushed or element.cell
             attempt = new PushAttempt element, elementPosition.nextTo(toAvoid, onSide)
 
-            if attempt.to.x     < 0         then return attempt.fail()
-            if attempt.to.maxX >= @_columns then return attempt.fail()
-            if attempt.to.y     < 0         then return attempt.fail()
+            if attempt.to.x    < 0         then return attempt.fail()
+            if attempt.to.maxX > @_columns then return attempt.fail()
+            if attempt.to.y    < 0         then return attempt.fail()
 
             overlappingElements = @_findOverlappingElements attempt.to, element
             for child in overlappingElements
