@@ -14,6 +14,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
 
         constructor: ($parentEl)->
             @_columns     = 12
+            @_elements    = []
             @_ignoring    = []
             @_margin      = 5
             @_parentEl    = $parentEl
@@ -27,11 +28,14 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
         # Public Methods ###############################################################
 
         layoutElements: ->
+            @_slideElementsUp()
+
             for element in @_elements
                 continue if element in @_ignoring
 
                 @_refreshPxFromCell element
                 @_refreshDomFromPx element
+                element.slid = null
 
         claimReservedSpace: ($el)->
             @_placeholder.removeClass 'visible'
@@ -50,6 +54,8 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                 $el:  $el
                 cell: new ElementPosition
                 px:   new ElementPosition
+
+            Object.defineProperty @_reserved, 'effectiveCell', get:-> @cell
 
             @_refreshPxFromDom @_reserved
             @_refreshCellFromPx @_reserved
@@ -164,7 +170,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                 continue if element is except
                 continue if element in @_ignoring
 
-                elementPosition = element.pushed or element.cell
+                elementPosition = element.effectiveCell
                 if position.overlaps elementPosition
                     result.push element
 
@@ -180,7 +186,11 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                     isDragging: false
                     px:         new ElementPosition
                     pushed:     null
+                    slid:       null
                     toString:   -> @id
+
+                Object.defineProperty element, 'effectiveCell', get:->
+                    return @slid or @pushed or @cell
 
                 # $element.append "<p>id: #{element.id}, #{element.cell}</p>"
 
@@ -194,7 +204,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
 
         _pushElementsFromReservedSpace: ->
             for element in @_elements
-                elementPosition = element.pushed or element.cell
+                elementPosition = element.effectiveCell
                 continue unless @_doesOverlapReserved elementPosition
                 continue if element in @_ignoring
 
@@ -216,7 +226,6 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             element.cell.height = parseInt element.$el.attr 'data-height'
 
             # element.$el.find('p').html "id: #{element.id}, #{element.cell}"
-
 
         _refreshCellFromPx: (element)->
             xScale = ((@_width - @_margin) / @_columns)
@@ -242,7 +251,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             xScale = ((@_width - @_margin) / @_columns)
             yScale = @_rowHeight
 
-            cell = element.pushed or element.cell
+            cell = element.effectiveCell
 
             element.px.x      = cell.x * xScale
             element.px.y      = cell.y * yScale
@@ -255,3 +264,32 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             element.px.y      = elementOffset.top
             element.px.width  = element.$el.width()
             element.px.height = element.$el.height()
+
+        _slideElementsUp: ->
+            sortedElements = @_elements[..]
+            sortedElements.sort (a, b)->
+                if a.cell.y isnt b.cell.y
+                    return if a.cell.y < b.cell.y then -1 else +1
+                if a.cell.x isnt b.cell.x
+                    return if a.cell.x < b.cell.x then -1 else +1
+                return 0
+
+            for element in sortedElements
+                continue if element in @_ignoring
+                continue if element.effectiveCell.y is 0
+
+                position        = element.effectiveCell.clone()
+                lastAcceptableY = position.y
+                while true
+                    position.y -= 1
+                    overlapsReserved = @_doesOverlapReserved position
+                    overlappedElements = @_findOverlappingElements position, element
+                    overlapping = overlapsReserved or overlappedElements.length > 0
+
+                    if not overlapping
+                        lastAcceptableY = position.y
+
+                    if overlapping or position.y is 0
+                        position.y = lastAcceptableY
+                        element.slid = position
+                        break
