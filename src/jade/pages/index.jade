@@ -10,22 +10,40 @@ block title
 
 block content
     aa-layout(row-height="150" columns="12")
-        div.grid-element(data-x="0" data-y="0" data-width="3" data-height="5")
-            p(style="background: red;") alpha
-        div.grid-element(data-x="3" data-y="0" data-width="3" data-height="2")
-            p(style="background: orange;") bravo
-        div.grid-element(data-x="6" data-y="0" data-width="2" data-height="1")
-            p(style="background: navy;") charlie
-        div.grid-element(data-x="8" data-y="0" data-width="4" data-height="4")
-            p(style="background: green;") delta
-        div.grid-element(data-x="0" data-y="5" data-width="3" data-height="1")
-            p(style="background: skyblue;") echo
-        div.grid-element(data-x="3" data-y="4" data-width="6" data-height="2")
-            p(style="background: purple;") foxtrot
-        div.grid-element(data-x="9" data-y="4" data-width="1" data-height="1")
-            p(style="background: black;") golf
-        div.grid-element(data-x="10" data-y="4" data-width="1" data-height="1")
-            p(style="background: magenta;") hotel
-        div.grid-element(data-x="11" data-y="4" data-width="1" data-height="1")
-            p(style="background: brown;") india
+        div.grid-element(data-x="0" data-y="0" data-width="3" data-height="5" style="background: red;")
+            .move-handle
+                p alpha
+            .resize-handle
+        div.grid-element(data-x="3" data-y="0" data-width="3" data-height="2" style="background: orange;")
+            .move-handle
+                p bravo
+            .resize-handle
+        div.grid-element(data-x="6" data-y="0" data-width="2" data-height="1" style="background: navy;")
+            .move-handle
+                p charlie
+            .resize-handle
+        div.grid-element(data-x="8" data-y="0" data-width="4" data-height="4" style="background: green;")
+            .move-handle
+                p delta
+            .resize-handle
+        div.grid-element(data-x="0" data-y="5" data-width="3" data-height="1" style="background: skyblue;")
+            .move-handle
+                p echo
+            .resize-handle
+        div.grid-element(data-x="3" data-y="4" data-width="6" data-height="2" style="background: purple;")
+            .move-handle
+                p foxtrot
+            .resize-handle
+        div.grid-element(data-x="9" data-y="4" data-width="1" data-height="1" style="background: black;")
+            .move-handle
+                p golf
+            .resize-handle
+        div.grid-element(data-x="10" data-y="4" data-width="1" data-height="1" style="background: magenta;")
+            .move-handle
+                p hotel
+            .resize-handle
+        div.grid-element(data-x="11" data-y="4" data-width="1" data-height="1" style="background: brown;")
+            .move-handle
+                p india
+            .resize-handle
 

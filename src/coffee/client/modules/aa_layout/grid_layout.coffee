@@ -233,8 +233,8 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
 
             element.cell.x      = Math.round element.px.x / xScale
             element.cell.y      = Math.round element.px.y / yScale
-            element.cell.width  = Math.round element.px.width / (xScale - @_margin)
-            element.cell.height = Math.round element.px.height / (yScale - @_margin)
+            element.cell.width  = Math.max 1, Math.round element.px.width / (xScale - @_margin)
+            element.cell.height = Math.max 1, Math.round element.px.height / (yScale - @_margin)
 
             # element.$el.find('p').html "id: #{element.id}, #{element.cell}"
 

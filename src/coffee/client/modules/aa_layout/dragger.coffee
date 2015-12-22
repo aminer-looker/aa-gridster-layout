@@ -13,13 +13,28 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
 
         constructor: (layout)->
             @_isDragging      = false
-            @_dragStartOffset = {x:0, y:0}
+            @_dragStartOffset = x:0, y:0
+            @_dragStartSize   = height:0; width: 0
             @_draggedElement  = null
             @_layout          = layout
+            @_pendingCancel   = null
 
             @_addMouseHandlers (element.$el for element in layout.elements)
 
         # Private Methods ##############################################################
+
+        _determineDragMode: ($el, event)->
+            $element = $(event.target)
+
+            while $element.length > 0
+                if $element.hasClass 'move-handle'
+                    return 'move'
+                else if $element.hasClass 'resize-handle'
+                    return 'resize'
+
+                $element = $element.parent()
+
+            return null
 
         _addMouseHandlers: ($draggableEls)->
             for $el in $draggableEls
@@ -27,15 +42,22 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
                     $el.mousedown (event)=> @_onMouseDown $el, event
                     $el.mousemove (event)=> @_onMouseMove $el, event
                     $el.mouseup   (event)=> @_onMouseUp   $el, event
-                    $el.mouseout  (event)=> @_onMouseUp   $el, event
+                    $el.mouseout  (event)=> @_onMouseOut  $el, event
 
         _onMouseDown: ($el, event)->
+            dragMode = @_determineDragMode $el, event
+            return unless dragMode?
+
+            @_dragMode = dragMode
             @_isDragging = true
             event.preventDefault()
 
             @_dragStartOffset =
                 x: event.pageX - $el.offset().left
                 y: event.pageY - $el.offset().top
+            @_dragStartSize =
+                height: $el.height()
+                width: $el.width()
 
             @_draggedElement = $el
             @_draggedElement.addClass 'dragging'
@@ -47,8 +69,17 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             return unless $el is @_draggedElement
             event.preventDefault()
 
-            $el.offset top:event.pageY - @_dragStartOffset.y, left:event.pageX - @_dragStartOffset.x
+            if @_dragMode is 'move'
+                $el.offset top:event.pageY - @_dragStartOffset.y, left:event.pageX - @_dragStartOffset.x
+            else if @_dragMode is 'resize'
+                height = @_dragStartSize.height + (event.pageY - $el.offset().top) - @_dragStartOffset.y
+                width = @_dragStartSize.width + (event.pageX - $el.offset().left) - @_dragStartOffset.x
+                $el.css height:height, width: width
+
             @_layout.reserveSpace $el
+
+        _onMouseOut: ($el, event)->
+            @_onMouseMove $el, event
 
         _onMouseUp: ($el, event)->
             return unless $el is @_draggedElement
@@ -60,6 +91,7 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
 
             @_isDragging      = false
             @_dragStartOffset = null
+            @_dragStartSize   = null
             @_draggedElement  = null
 
             @_layout.claimReservedSpace $el
