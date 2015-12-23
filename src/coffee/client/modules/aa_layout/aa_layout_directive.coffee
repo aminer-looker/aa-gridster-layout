@@ -17,7 +17,7 @@ angular.module('aa-layout').directive 'aaLayout', (Dragger, GridLayout)->
       layout.rowHeight = scope.rowHeight
       layout.layoutElements()
 
-      dragger = new Dragger layout
+      dragger = new Dragger layout, $el
 
   restrict: 'E'
   scope: {

@@ -35,6 +35,11 @@ aa-layout {
                 transition:
                     box-shadow 100ms cubic-bezier(0.645, 0.045, 0.355, 1.000);
                 z-index: 100;
+
+                .move-handle, .resize-handle {
+                    cursor: grabbing;
+                    cursor: -webkit-grabbing;
+                }
             }
 
             &.drag-ending {
@@ -46,6 +51,14 @@ aa-layout {
                     height 300ms cubic-bezier(0.645, 0.045, 0.355, 1.000);
                 z-index: 100;
             }
+        }
+
+        .move-handle, .resize-handle {
+            cursor: grab;
+            cursor: -webkit-grab;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
         }
     }
 }

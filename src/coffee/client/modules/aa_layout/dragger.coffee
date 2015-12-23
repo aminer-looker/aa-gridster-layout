@@ -3,6 +3,7 @@
 # All rights reserved.
 #
 
+_       = require '../../../underscore'
 angular = require 'angular'
 
 ############################################################################################################
@@ -11,19 +12,20 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
 
     class Dragger
 
-        constructor: (layout)->
-            @_isDragging      = false
+        constructor: (layout, $grid)->
+            @_draggedElement  = null
             @_dragStartOffset = x:0, y:0
             @_dragStartSize   = height:0; width: 0
-            @_draggedElement  = null
+            @_$grid           = $grid
+            @_isDragging      = false
             @_layout          = layout
             @_pendingCancel   = null
 
-            @_addMouseHandlers (element.$el for element in layout.elements)
+            @_addMouseHandlers()
 
         # Private Methods ##############################################################
 
-        _determineDragMode: ($el, event)->
+        _determineDragMode: (event)->
             $element = $(event.target)
 
             while $element.length > 0
@@ -36,21 +38,34 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
 
             return null
 
-        _addMouseHandlers: ($draggableEls)->
-            for $el in $draggableEls
-                do ($el)=>
-                    $el.mousedown (event)=> @_onMouseDown $el, event
-                    $el.mousemove (event)=> @_onMouseMove $el, event
-                    $el.mouseup   (event)=> @_onMouseUp   $el, event
-                    $el.mouseout  (event)=> @_onMouseOut  $el, event
+        _determineGridElement: (event)->
+            $element = $(event.target)
 
-        _onMouseDown: ($el, event)->
-            dragMode = @_determineDragMode $el, event
-            return unless dragMode?
+            $candidate = null
+            while $element.length > 0
+                if $element.hasClass 'grid-element'
+                    $candidate = $element
+                if $candidate? and $element[0] is @_$grid[0]
+                    return $candidate
+
+                $element = $element.parent()
+
+            return null
+
+        _addMouseHandlers: ->
+            document.addEventListener 'mousedown', (event)=> @_onMouseDown event
+            document.addEventListener 'mousemove', (event)=> @_onMouseMove event
+            document.addEventListener 'mouseout',  (event)=> @_onMouseOut  event
+            document.addEventListener 'mouseup',   (event)=> @_onMouseUp event
+
+        _onMouseDown: (event)->
+            $el = @_determineGridElement event
+            dragMode = @_determineDragMode event
+            return unless $el? and dragMode?
+            event.preventDefault()
 
             @_dragMode = dragMode
             @_isDragging = true
-            event.preventDefault()
 
             @_dragStartOffset =
                 x: event.pageX - $el.offset().left
@@ -65,9 +80,10 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             @_layout.startIgnoring $el
             @_layout.reserveSpace $el
 
-        _onMouseMove: ($el, event)->
-            return unless $el is @_draggedElement
+        _onMouseMove: (event)->
+            return unless @_draggedElement?
             event.preventDefault()
+            $el = @_draggedElement
 
             if @_dragMode is 'move'
                 $el.offset top:event.pageY - @_dragStartOffset.y, left:event.pageX - @_dragStartOffset.x
@@ -78,11 +94,13 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
 
             @_layout.reserveSpace $el
 
-        _onMouseOut: ($el, event)->
-            @_onMouseMove $el, event
+        _onMouseOut: (event)->
+            @_onMouseMove event
 
-        _onMouseUp: ($el, event)->
-            return unless $el is @_draggedElement
+        _onMouseUp: (event)->
+            $el = @_determineGridElement event
+            return unless $el? and @_draggedElement?
+            return unless $el[0] is @_draggedElement[0]
             event.preventDefault()
 
             $el.removeClass 'dragging'

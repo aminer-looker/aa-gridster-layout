@@ -41,7 +41,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             @_placeholder.removeClass 'visible'
 
             for element in @_elements
-                if element.$el is $el
+                if element.$el[0] is $el[0]
                     element.cell = @_reserved.cell
                 else if element.pushed?
                     element.cell = element.pushed
@@ -76,13 +76,13 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
 
         startIgnoring: ($el)->
             for element in @_elements
-                if element.$el is $el
+                if element.$el[0] is $el[0]
                     @_ignoring.push element
                     break
 
         stopIgnoring: ($el)->
             for element, index in @_ignoring
-                if element.$el is $el
+                if element.$el[0] is $el[0]
                     @_ignoring.splice index, 1
                     break
 
