@@ -75,6 +75,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             @layoutElements()
 
         startIgnoring: ($el)->
+            @_ignoring = []
             for element in @_elements
                 if element.$el[0] is $el[0]
                     @_ignoring.push element

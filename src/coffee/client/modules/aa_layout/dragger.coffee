@@ -86,7 +86,12 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             $el = @_draggedElement
 
             if @_dragMode is 'move'
-                $el.offset top:event.pageY - @_dragStartOffset.y, left:event.pageX - @_dragStartOffset.x
+                maxLeft = @_$grid.offset().left + @_$grid.width() - $el.width()
+
+                top = Math.max 0, event.pageY - @_dragStartOffset.y
+                left = Math.min maxLeft, Math.max 0, event.pageX - @_dragStartOffset.x
+
+                $el.offset top:top, left:left
             else if @_dragMode is 'resize'
                 height = @_dragStartSize.height + (event.pageY - $el.offset().top) - @_dragStartOffset.y
                 width = @_dragStartSize.width + (event.pageX - $el.offset().left) - @_dragStartOffset.x
@@ -100,7 +105,7 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
         _onMouseUp: (event)->
             $el = @_determineGridElement event
             return unless $el? and @_draggedElement?
-            return unless $el[0] is @_draggedElement[0]
+            # return unless $el[0] is @_draggedElement[0]
             event.preventDefault()
 
             $el.removeClass 'dragging'
