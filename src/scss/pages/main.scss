@@ -10,29 +10,30 @@ body {
 .scroll-container {
     position: fixed; top: 10%; right: 5%; bottom: 10%; left: 5%;
     overflow: auto;
-}
 
-aa-layout {
-    background: #e0e0e0;
+    aa-layout {
+        background: #e0e0e0;
+        width: 100%;
 
-    .grid-element {
-        overflow: hidden;
-        text-align: center;
-
-        p {
-            color: white;
-            padding: 5px;
+        .grid-element {
+            overflow: hidden;
             text-align: center;
-        }
 
-        .move-handle {
-            position: absolute; top: 0; right: 0; left: 0; height: 2em;
-            background: gray;
-        }
+            p {
+                color: white;
+                padding: 5px;
+                text-align: center;
+            }
 
-        .resize-handle {
-            position: absolute; right: 0; bottom: 0; width: 20px; height: 20px;
-            background: gray;
+            .move-handle {
+                position: absolute; top: 0; right: 0; left: 0; height: 2em;
+                background: gray;
+            }
+
+            .resize-handle {
+                position: absolute; right: 0; bottom: 0; width: 20px; height: 20px;
+                background: gray;
+            }
         }
     }
 }

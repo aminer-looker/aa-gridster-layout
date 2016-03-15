@@ -86,10 +86,11 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             $el = @_draggedElement
 
             if @_dragMode is 'move'
+                minLeft = @_$grid.offset().left
                 maxLeft = @_$grid.offset().left + @_$grid.width() - $el.width()
 
-                top = Math.max 0, event.pageY - @_dragStartOffset.y
-                left = Math.min maxLeft, Math.max 0, event.pageX - @_dragStartOffset.x
+                top = Math.max @_$grid.offset().top, event.pageY - @_dragStartOffset.y
+                left = Math.min maxLeft, Math.max minLeft, event.pageX - @_dragStartOffset.x
 
                 $el.offset top:top, left:left
             else if @_dragMode is 'resize'

@@ -195,8 +195,6 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                 Object.defineProperty element, 'effectiveCell', get:->
                     return @slid or @pushed or @cell
 
-                # $element.append "<p>id: #{element.id}, #{element.cell}</p>"
-
                 @_elements.push element
                 @_refreshCellFromDom element
 
@@ -229,7 +227,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             element.cell.height = parseInt element.$el.attr 'data-height'
 
         _refreshCellFromPx: (element)->
-            xScale = ((@_width - @_margin) / @_columns)
+            xScale = ((@_width - 2 * @_margin) / @_columns)
             yScale = @_rowHeight
 
             element.cell.x      = Math.round (element.px.x - @_parentEl.offset().left) / xScale
