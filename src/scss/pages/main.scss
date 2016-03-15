@@ -9,7 +9,10 @@ body {
 
 .scroll-container {
     position: fixed; top: 10%; right: 5%; bottom: 10%; left: 5%;
+
+    background: lighten(cyan, 20%);
     overflow: auto;
+
 
     aa-layout {
         background: #e0e0e0;

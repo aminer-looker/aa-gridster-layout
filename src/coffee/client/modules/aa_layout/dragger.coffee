@@ -121,3 +121,7 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             @_layout.claimReservedSpace $el
             @_layout.stopIgnoring $el
             @_layout.layoutElements()
+
+            # layout again after CSS animations have completed since scrollbars may have been added/removed
+            # during the transitions
+            _.delay (=> @_layout.layoutElements()), 100
