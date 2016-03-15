@@ -105,7 +105,6 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
         _onMouseUp: (event)->
             $el = @_determineGridElement event
             return unless $el? and @_draggedElement?
-            # return unless $el[0] is @_draggedElement[0]
             event.preventDefault()
 
             $el.removeClass 'dragging'

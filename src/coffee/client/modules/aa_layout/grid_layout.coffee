@@ -37,6 +37,8 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                 @_refreshDomFromPx element
                 element.slid = null
 
+            @_updateParentHeight()
+
         claimReservedSpace: ($el)->
             @_placeholder.removeClass 'visible'
 
@@ -294,3 +296,12 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                         position.y = lastAcceptableY
                         element.slid = position
                         break
+
+        _updateParentHeight: ->
+            maxY = 0
+            if @_reserved? then maxY = @_reserved.px.y + @_reserved.px.height
+
+            for element in @_elements
+                maxY = Math.max maxY, element.px.y + element.px.height
+
+            @_parentEl.height maxY + 2 * @_margin
