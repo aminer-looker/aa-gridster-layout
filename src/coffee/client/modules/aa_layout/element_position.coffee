@@ -18,6 +18,13 @@ angular.module('aa-layout').factory 'ElementPosition', ->
         clone: ->
             return new ElementPosition @x, @y, @width, @height
 
+        equals: (that)->
+            return false if this.x isnt that.x
+            return false if this.y isnt that.y
+            return false if this.height isnt that.height
+            return false if this.width isnt that.width
+            return true
+
         nextTo: (position, side)->
             result = null
 

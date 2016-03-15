@@ -16,6 +16,8 @@ angular.module('aa-layout').directive 'aaLayout', (Dragger, GridLayout)->
       layout = new GridLayout $el
       layout.columns = scope.columns
       layout.rowHeight = scope.rowHeight
+      layout.onElementChanged = (id, p)->
+          console.log "Element(#{id}) changed: x:#{p.x}, y:#{p.y}, w:#{p.width}, h:#{p.height}"
       layout.layoutElements()
 
       $(window).on 'resize', _.throttle (-> layout.layoutElements()), 25

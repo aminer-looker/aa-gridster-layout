@@ -23,6 +23,8 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             @_rowHeight   = 100 # px
             @_width       = $parentEl.width()
 
+            @_onElementChanged = -> # do nothing
+
             @_initializeElements @_findGridElements $parentEl
 
         # Public Methods ###############################################################
@@ -34,8 +36,10 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             for element in @_elements
                 continue if element in @_ignoring
 
+                element.lastEffectiveCell = element.effectiveCell.clone()
                 @_refreshPxFromCell element
                 @_refreshDomFromPx element
+
                 element.slid = null
 
             @_updateParentHeight()
@@ -90,6 +94,22 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                     @_ignoring.splice index, 1
                     break
 
+        startLayoutChange: ->
+            for element in @_elements
+                element.startingCell = element.cell.clone()
+
+        stopLayoutChange: ->
+            for element in @_elements
+                start = element.startingCell
+                return unless start
+
+                element.cell = element.lastEffectiveCell
+                element.slid = null
+                element.pushed = null
+
+                if not start.equals element.cell
+                    @_onElementChanged element.$el.attr('data-id'), element.cell.clone()
+
         # Property Methods #############################################################
 
         Object.defineProperties @prototype,
@@ -137,6 +157,17 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
                         @_margin = value
                     else
                         throw new Error "expected a string or integer"
+
+            onElementChanged:
+                get: -> return @_onElementChanged
+
+                set: (func)->
+                    if not func?
+                        @_onElementChanged = null
+                        return
+
+                    if not _.isFunction(func) then throw new Error "onElementChanged must be a function"
+                    @_onElementChanged = func
 
         # Private Methods #############################################################
 

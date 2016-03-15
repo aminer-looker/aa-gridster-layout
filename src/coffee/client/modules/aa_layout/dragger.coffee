@@ -83,6 +83,7 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             @_draggedElement = $el
             @_draggedElement.addClass 'dragging'
 
+            @_layout.startLayoutChange()
             @_layout.startIgnoring $el
             @_layout.reserveSpace $el
 
@@ -132,6 +133,7 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             @_layout.claimReservedSpace $el
             @_layout.stopIgnoring $el
             @_layout.layoutElements()
+            @_layout.stopLayoutChange()
 
             # layout again after CSS animations have completed since scrollbars may have been added/removed
             # during the transitions
