@@ -28,6 +28,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
         # Public Methods ###############################################################
 
         layoutElements: ->
+            @_width = @_parentEl.width()
             @_slideElementsUp()
 
             for element in @_elements
