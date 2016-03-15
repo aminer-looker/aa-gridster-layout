@@ -3,6 +3,7 @@
 # All rights reserved.
 #
 
+_         = require '../../../underscore'
 angular   = require 'angular'
 templates = require '../../templates'
 
@@ -16,6 +17,8 @@ angular.module('aa-layout').directive 'aaLayout', (Dragger, GridLayout)->
       layout.columns = scope.columns
       layout.rowHeight = scope.rowHeight
       layout.layoutElements()
+
+      $(window).on 'resize', _.throttle (-> layout.layoutElements()), 25
 
       dragger = new Dragger layout, $el, $('.scroll-container')
 
