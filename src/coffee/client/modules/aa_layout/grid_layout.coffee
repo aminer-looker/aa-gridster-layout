@@ -294,7 +294,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
 
         _updateParentHeight: ->
             maxY = 0
-            if @_reserved? then maxY = @_reserved.px.y + @_reserved.px.height
+            if @_reserved? then maxY = @_reserved.px.y + @_reserved.px.height + @_rowHeight
 
             for element in @_elements
                 maxY = Math.max maxY, element.px.y + element.px.height

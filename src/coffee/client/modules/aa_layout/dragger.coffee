@@ -12,14 +12,20 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
 
     class Dragger
 
-        constructor: (layout, $grid)->
-            @_draggedElement  = null
-            @_dragStartOffset = x:0, y:0
-            @_dragStartSize   = height:0; width: 0
-            @_$grid           = $grid
-            @_isDragging      = false
-            @_layout          = layout
-            @_pendingCancel   = null
+        constructor: (layout, $grid, $scrollContainer)->
+            @_$grid               = $grid
+            @_$scrollContainer    = $scrollContainer
+            @_autoscrollId        = null
+            @_autoscrollFrameRate = 30
+            @_draggedElement      = null
+            @_dragStartOffset     = x:0, y:0
+            @_dragStartSize       = height:0; width: 0
+            @_isDragging          = false
+            @_layout              = layout
+            @_maxScrollDelta      = 5 # px
+            @_pendingCancel       = null
+            @_repeatEvent         = null
+            @_scrollBuffer        = 20 # px
 
             @_addMouseHandlers()
 
@@ -80,10 +86,14 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             @_layout.startIgnoring $el
             @_layout.reserveSpace $el
 
+            @_updateScrollPosition(event)
+
         _onMouseMove: (event)->
             return unless @_draggedElement?
             event.preventDefault()
             $el = @_draggedElement
+
+            @_updateScrollPosition(event)
 
             if @_dragMode is 'move'
                 minLeft = @_$grid.offset().left
@@ -117,6 +127,7 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             @_dragStartOffset = null
             @_dragStartSize   = null
             @_draggedElement  = null
+            @_stopAutoscroll()
 
             @_layout.claimReservedSpace $el
             @_layout.stopIgnoring $el
@@ -125,3 +136,28 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             # layout again after CSS animations have completed since scrollbars may have been added/removed
             # during the transitions
             _.delay (=> @_layout.layoutElements()), 100
+
+        _startAutoscroll: (event)->
+            @_stopAutoscroll()
+            @_autoscrollId = setTimeout (=> @_onMouseMove event), (1000 / @_autoscrollFrameRate)
+
+        _stopAutoscroll: ->
+            return unless @_autoscrollId
+            clearTimeout @_autoscrollId
+
+        _updateScrollPosition: (event)->
+            return unless @_$scrollContainer
+            scroller = @_$scrollContainer
+
+            @_stopAutoscroll()
+            if event.pageY < scroller.offset().top + @_scrollBuffer
+                scrollDelta = 2 * scroller.offset().top + @_scrollBuffer - event.pageY
+                scrollDelta = Math.min @_maxScrollDelta, scrollDelta
+                scroller.scrollTop scroller.scrollTop() - scrollDelta
+                @_startAutoscroll(event)
+
+            if event.pageY > scroller.offset().top + scroller.height() - @_scrollBuffer
+                scrollDelta = @_scrollBuffer - (scroller.offset().top + scroller.height() - event.pageY)
+                scrollDelta = Math.min @_maxScrollDelta, scrollDelta
+                scroller.scrollTop scroller.scrollTop() + scrollDelta
+                @_startAutoscroll(event)
