@@ -12,4 +12,4 @@ angular.module('aa-layout').controller 'AALayoutController', ->
 
   class AALayoutController
 
-    constructor: ->
+    constructor: -> # do nothing

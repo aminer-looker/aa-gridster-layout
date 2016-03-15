@@ -16,7 +16,7 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             @_columns     = 12
             @_elements    = []
             @_ignoring    = []
-            @_margin      = 5
+            @_margin      = 5 # px
             @_parentEl    = $parentEl
             @_reserved    = null
             @_placeholder = $parentEl.find '.reserved'
@@ -228,18 +228,14 @@ angular.module('aa-layout').factory 'GridLayout', (ElementPosition, PushAttempt)
             element.cell.width  = parseInt element.$el.attr 'data-width'
             element.cell.height = parseInt element.$el.attr 'data-height'
 
-            # element.$el.find('p').html "id: #{element.id}, #{element.cell}"
-
         _refreshCellFromPx: (element)->
             xScale = ((@_width - @_margin) / @_columns)
             yScale = @_rowHeight
 
-            element.cell.x      = Math.round element.px.x / xScale
-            element.cell.y      = Math.round element.px.y / yScale
+            element.cell.x      = Math.round (element.px.x - @_parentEl.offset().left) / xScale
+            element.cell.y      = Math.round (element.px.y - @_parentEl.offset().top) / yScale
             element.cell.width  = Math.max 1, Math.round element.px.width / (xScale - @_margin)
             element.cell.height = Math.max 1, Math.round element.px.height / (yScale - @_margin)
-
-            # element.$el.find('p').html "id: #{element.id}, #{element.cell}"
 
         _refreshDomFromPx: (element)->
             offset =
