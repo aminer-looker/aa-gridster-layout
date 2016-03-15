@@ -96,6 +96,7 @@ angular.module('aa-layout').factory 'Dragger', ($timeout)->
             else if @_dragMode is 'resize'
                 height = @_dragStartSize.height + (event.pageY - $el.offset().top) - @_dragStartOffset.y
                 width = @_dragStartSize.width + (event.pageX - $el.offset().left) - @_dragStartOffset.x
+                width = Math.min width, @_$grid.offset().left + @_$grid.width() - $el.offset().left
                 $el.css height:height, width: width
 
             @_layout.reserveSpace $el
